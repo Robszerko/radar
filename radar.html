@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Időjárás radar</title>
+    <style>
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: auto;
+        }
+        .overlay-text {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <video controls autoplay loop>
+            <source src="https://cdn.idokep.hu/radar/radar.mp4?t=" + new Date().getTime() type="video/mp4">
+            A böngésződ nem támogatja a videó lejátszását.
+            <a href="https://cdn.idokep.hu/radar/radar.mp4">Videó link</a>
+        </video>
+        <div class="overlay-text">
+            <div id="last-updated">Frissítve: <span id="timestamp"></span></div>
+            <div>Szolgáltató: Hungaromet</div>
+        </div>
+    </div>
+
+    <script>
+        function updateVideoAndTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('timestamp').textContent = timeString;
+            
+            const videoSource = document.querySelector('video source');
+            videoSource.src = "https://cdn.idokep.hu/radar/radar.mp4?t=" + now.getTime();
+            
+            document.querySelector('video').load();
+        }
+
+        // Kezdeti frissítés
+        updateVideoAndTimestamp();
+        
+        // 5 percenkénti frissítés
+        setInterval(updateVideoAndTimestamp, 300000);
+    </script>
+</body>
+</html>
