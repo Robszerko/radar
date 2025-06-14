@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Időjárás radar</title>
     <style>
+        body {
+            margin: 0;
+            background-color: #f0f0f0;
+        }
         .video-container {
             position: relative;
             width: 100%;
-            height: auto;
+            max-width: 960px; /* Opcionális: maximális szélesség a jobb megjelenésért nagy képernyőn */
+            margin: 0 auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .overlay-text {
             position: absolute;
@@ -33,8 +39,10 @@
 </head>
 <body>
     <div class="video-container">
-        <video controls autoplay loop>
-            <source src="https://cdn.idokep.hu/radar/radar.mp4?t=" + new Date().getTime() type="video/mp4">
+        <!-- A `muted` és `playsinline` attribútumok biztosítják a megbízható automatikus lejátszást -->
+        <video autoplay loop muted playsinline>
+            <!-- A forrást (src) a JavaScript fogja beállítani -->
+            <source type="video/mp4">
             A böngésződ nem támogatja a videó lejátszását.
             <a href="https://cdn.idokep.hu/radar/radar.mp4">Videó link</a>
         </video>
@@ -45,21 +53,31 @@
     </div>
 
     <script>
+        // Változók a könnyebb eléréshez
+        const videoElement = document.querySelector('video');
+        const videoSource = document.querySelector('video source');
+        const timestampElement = document.getElementById('timestamp');
+
         function updateVideoAndTimestamp() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString();
-            document.getElementById('timestamp').textContent = timeString;
+            const timeString = now.toLocaleTimeString('hu-HU'); // Magyar formátumú idő
+            timestampElement.textContent = timeString;
             
-            const videoSource = document.querySelector('video source');
+            // A videó forrásának frissítése egyedi időbélyeggel a gyorsítótárazás elkerülése végett
             videoSource.src = "https://cdn.idokep.hu/radar/radar.mp4?t=" + now.getTime();
             
-            document.querySelector('video').load();
+            // A videó újra betöltése és elindítása
+            videoElement.load();
+            videoElement.play().catch(error => {
+                // Hiba esetén (pl. ha a böngésző mégis letiltaná) a konzolra írunk egy üzenetet
+                console.error("A videó automatikus lejátszása sikertelen:", error);
+            });
         }
 
-        // Kezdeti frissítés
+        // Kezdeti frissítés az oldal betöltődésekor
         updateVideoAndTimestamp();
         
-        // 5 percenkénti frissítés
+        // 5 percenkénti (300000 ms) frissítés
         setInterval(updateVideoAndTimestamp, 300000);
     </script>
 </body>
